@@ -5,10 +5,10 @@
 #include <math.h>
 
 #define MAX_CHAR 1000
-#define MAX_ROWS 140
-#define MAX_COLS 10
-#define SAMPLE 1
-#define ARRAY_SIZE (SAMPLE ? 10 : MAX_ROWS)
+#define SAMPLE 0
+#define MAX_ROWS (SAMPLE ? 10 : 142)
+#define MAX_COLS (SAMPLE ? 10 : 142)
+#define ARRAY_SIZE (SAMPLE ? 10 : 142)
 
 typedef struct {
     int value;
@@ -30,18 +30,12 @@ int main(void) {
     int symbols[MAX_ROWS][MAX_COLS];
 
     initializeArrays(AllNumbers, symbols);
-
+    #if SAMPLE == 1
     const char *filename = "sample.txt";
+    #else
+    const char *filename = "input.txt";
+    #endif
     processFile(filename, AllNumbers, symbols);
-    //print numbers
-//    for (int i = 0; i < ARRAY_SIZE; i++) {
-//        for (int j = 0; j < MAX_COLS; j++) {
-//            if (true) {
-//                printf("%d ", AllNumbers[i][j].value);
-//            }
-//        }
-//        printf("\n");
-//    }
     calculateCloseness(AllNumbers, symbols, ARRAY_SIZE);
 
     return 0;
@@ -89,7 +83,7 @@ void processLine(char *line, NumberFound *ptr, int *symbolIndexes, int rowIndex)
             startIndex += n.length;
         } else {
             if (*line != '.' && *line != '\n') {
-                symbolIndexes[rowIndex] = startIndex;
+                symbolIndexes[startIndex] = startIndex;
             }
             line++;
             startIndex++;
@@ -113,7 +107,6 @@ void calculateCloseness(NumberFound numbers[MAX_ROWS][MAX_COLS], int symbolIndex
         for (int col = 0; col < MAX_COLS; col++) {
             if (numbers[row][col].isPresent) {
                 sum += numbers[row][col].value;
-                printf("%d\n", numbers[row][col].value);
             }
         }
     }
@@ -122,6 +115,9 @@ void calculateCloseness(NumberFound numbers[MAX_ROWS][MAX_COLS], int symbolIndex
 
 void checkClosenessForRow(NumberFound numbers[MAX_ROWS][MAX_COLS], int symbolIndexes[MAX_ROWS][MAX_COLS],
                           int currentRow, int currentCol, int targetRow, bool isDiagonal) {
+    if (targetRow < 0 || targetRow >= MAX_ROWS) {
+        return;
+    }
     for (int k = 0; k < MAX_COLS; k++) {
         if (isDiagonal) {
             if (symbolIndexes[targetRow][k] >= numbers[currentRow][currentCol].positionX - 1 &&
