@@ -15,14 +15,14 @@ typedef struct {
 
 int convertCard(char card) {
     switch (card) {
+        case 'J': //jocker, no value
+            return -1;
         case 'A':
             return 14;
         case 'K':
             return 13;
         case 'Q':
             return 12;
-        case 'J':
-            return 11;
         case 'T':
             return 10;
         default:
@@ -62,8 +62,16 @@ void giveTypeToHands(Hand* hands) {
             array[card]++;
         }
 
+        //Get nb of jockers out
+        int nbJ = array[convertCard('J')];
+        array[convertCard('J')] = 0;
+
         // Sort the array in descending order
         qsort(array, 15, sizeof(int), cmpfunc);
+
+        //add jockers to array
+        array[0] += nbJ;
+     
         if (array[0] == 5) {
             hands[i].type = 7;
         } else if (array[0] == 4) {
@@ -76,7 +84,7 @@ void giveTypeToHands(Hand* hands) {
             hands[i].type = 3;
         } else if (array[0] == 2) {
             hands[i].type = 2;
-        } else {
+        } else if (array[0] == 1) {
             hands[i].type = 1;
         }
     }
